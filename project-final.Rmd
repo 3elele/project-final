@@ -6,6 +6,7 @@ output: html_document
 ---
 
 ## Do formants depend on speakers ?
+***
 
 ### 1st step
 
@@ -50,25 +51,43 @@ ggplot2::ggplot(voyelles, ggplot2::aes(VOWEL, F3)) +
 
 ##### 2. F0 values
 
-The second indicator we will consider in order to identify different speakers will be the pitch or f0 measure.
+The second indicator we will consider in order to identify different speakers will be the pitch or f0 measure. We'll present different representations, all based on density. We won't look at the values of this measure, they will not tell us something in particular, but just looking at the shapes of density curves we will understand the great variation of our dataset.
 
-```{r pitchPlot}
-ggplot2::ggplot(voyelles, ggplot2::aes(F0)) +
-  ggplot2::geom_density(ggplot2::aes(fill=as.factor(VOWEL)), alpha=0.8) +
-  ggplot2::scale_colour_brewer(palette = "Spectral") +
-  ggplot2::labs(title="Pitch measurements", fill="VOWEL") + ggplot2::facet_wrap( ~ VOWEL)
-```
-
-```{r}
+```{r pithPlotGenders}
 ggplot2::ggplot(voyelles, ggplot2::aes(F0)) +
   ggplot2::geom_density(ggplot2::aes(fill=as.factor(SPEAKER)), alpha=0.8) +
   ggplot2::scale_colour_brewer(palette = "Spectral") +
   ggplot2::labs(title="Pitch measurements", fill="SPEAKER")
 ```
 
-##### 3. Cavity lengths
++ The first one is based only only on gender variation, the two curves tell us one simple thing : the speaker gender has a great impact on the pitch measure (not a great discover). Men's pitch is lower than women's one, due to the physiological difference between men and women frequencies, cavities, this tells us that just in thanks to pitch measurement we would, in general, predict if it's a male voice or a female one.
 
-```{r cavityLength}
+```{r pitchPlotVowels}
+ggplot2::ggplot(voyelles, ggplot2::aes(F0)) +
+  ggplot2::geom_density(ggplot2::aes(fill=as.factor(VOWEL)), alpha=0.8) +
+  ggplot2::scale_colour_brewer(palette = "Spectral") +
+  ggplot2::labs(title="Pitch measurements", fill="VOWEL") + ggplot2::facet_wrap( ~ VOWEL)
+```
+
++ We applied the density measurement taking the vowels as a variation factor. this time our curves differs from one another but we can't really see some important information from them. Considering the global realisation of a vowel knowing that the pitch is strongly influenced by gender lead us to a not really satisfying representation of values.
+
+```{r pitchPlotVowelsGenders}
+ggplot2::ggplot(voyelles, ggplot2::aes(F0)) +
+  ggplot2::geom_density(ggplot2::aes(fill=as.factor(SPEAKER)), alpha=0.8) +
+  ggplot2::scale_colour_brewer(palette = "Spectral") +
+  ggplot2::labs(title="Pitch measurements", fill="VOWEL") + ggplot2::facet_wrap( ~ VOWEL)
+```
+
++ In order to clarify the variation between vowel we add gender as a factor of variation in this new density representation. As we see, this time our curves directly derive from our first pitch curve, but as that one it can help us to describe the variation between genders not specifically between speakers.  
+
+##### 3. Cavity lengths  
+
+Another factor we could use to predict the speaker variation can be the cavity length ? Maybe this measure can be and addiction to other more precise ones :  
+* because of physiological factors, the human cavity is almost the same for every being, this measure isn't really specific for a person ;  
+* it isn't always precide, it can vary because we just computed it from formants measurements, using the reverse formant calcutation formula $Fn = (2n-1)c/4l$ where Fn is the sum of all formants or a specific formant l is the length and c the constant of sound speed (35000 m/s) so the length formula will be  $l = (c/Fn)/4$
++ We applied the density measurement taking the vowels as a variation factor. this time our curves differs from one another but we can't really see some important information from them. Considering the global realisation of a vowel knowing that the pitch is strongly influenced by gender lead us to a not really satisfying representation of values.
+
+```{r cavityLength, echo=FALSE}
 cavityF1 <- c()
 cavityF2 <- c()
 cavityF3 <- c()
@@ -90,86 +109,106 @@ for (i in 1:1885) {
   lm <- (cavityF1[i] + cavityF2[i] + cavityF3[i])/3
   cavities <-(append(cavities, lm))
 }
+```
 
+```{r cavityLengthPlot}
 ggplot2::ggplot(data.frame(cavities), ggplot2::aes(seq_along(cavities),cavities)) + 
   ggplot2::geom_bar(colour="black", stat="identity") + 
   ggplot2::labs(y="length", x="count", title="Average cavity length")
 ```
 
-
+***
 #### Single Speaker considerations
 
-```{r subsetOnly1SpeakerW1}
-voyelles1Locutrice1 <- voyelles[1:168,]
-ggplot2::ggplot(voyelles1Locutrice1, ggplot2::aes(x=F2, y=F1)) +
+In order to realize our main idea to recognize between two or more different speakers we will now compare one pair of speakers for every gender, using the *f3* and *f0* measures.
+
+```{r subset}
+voyellesLocutrice1 <- voyelles[1:168,]
+voyellesLocutrice2 <- voyelles[169:337,]
+voyellesLocuteur1 <- voyelles[1497:1720,]
+voyellesLocuteur2 <- voyelles[1719:1885,]
+```
+
+##### 1. Vocalic triangle
+
+```{r vocalicTriangleCompW}
+ggplot2::ggplot(voyellesLocutrice1, ggplot2::aes(x=F2, y=F1)) +
   ggplot2::geom_point(ggplot2::aes(col=VOWEL), size=3) +
   ggplot2::scale_colour_brewer(palette = "Spectral") +
   ggplot2::scale_x_reverse() + ggplot2::scale_y_reverse() +
-  ggplot2::labs(y="F1", x="F2", title="1 female speaker vocalic triangle")
+  ggplot2::labs(y="F1", x="F2", title="Female speaker 1 vocalic triangle")
 
-
-ggplot2::ggplot(voyelles1Locutrice1, ggplot2::aes(F0)) +
-  ggplot2::geom_density(ggplot2::aes(fill=as.factor(SPEAKER)), alpha=0.8) +
-  ggplot2::scale_colour_brewer(palette = "Spectral") +
-  ggplot2::labs(title="Pitch measurements single female speaker", fill="GENDER")
-
-ggplot2::ggplot(voyelles1Locutrice1, ggplot2::aes(VOWEL, F3)) +
-  ggplot2::geom_count(col="tomato3", show.legend=F) +
-  ggplot2::labs(y="F3", title="Single female speaker F3 values")
-```
-
-```{r subsetOnly1SpeakerW2}
-voyelles1Locutrice2 <- voyelles[169:337,]
-ggplot2::ggplot(voyelles1Locutrice2, ggplot2::aes(x=F2, y=F1)) +
+ggplot2::ggplot(voyellesLocutrice2, ggplot2::aes(x=F2, y=F1)) +
   ggplot2::geom_point(ggplot2::aes(col=VOWEL), size=3) +
   ggplot2::scale_colour_brewer(palette = "Spectral") +
   ggplot2::scale_x_reverse() + ggplot2::scale_y_reverse() +
-  ggplot2::labs(y="F1", x="F2", title="1 female speaker vocalic triangle")
-
-
-ggplot2::ggplot(voyelles1Locutrice2, ggplot2::aes(F0)) +
-  ggplot2::geom_density(ggplot2::aes(fill=as.factor(SPEAKER)), alpha=0.8) +
-  ggplot2::scale_colour_brewer(palette = "Spectral") +
-  ggplot2::labs(title="Pitch measurements single female speaker", fill="GENDER")
-
-ggplot2::ggplot(voyelles1Locutrice2, ggplot2::aes(VOWEL, F3)) +
-  ggplot2::geom_count(col="tomato3", show.legend=F) +
-  ggplot2::labs(y="F3", title="Single female speaker F3 values")
+  ggplot2::labs(y="F1", x="F2", title="Female speaker 2 vocalic triangle")
 ```
 
-```{r subsetOnly1SpeakerM1}
-voyelles1Locuteur1 <- voyelles[1497:1720,]
-ggplot2::ggplot(voyelles1Locuteur1, ggplot2::aes(x=F2, y=F1)) +
+##### 2. Pitch measurement
+
+```{r pitchCompW}
+ggplot2::ggplot(voyellesLocutrice1, ggplot2::aes(F0)) +
+  ggplot2::geom_density(ggplot2::aes(fill=as.factor(SPEAKER)), alpha=0.8) +
+  ggplot2::scale_colour_brewer(palette = "Spectral") +
+  ggplot2::labs(title="Pitch measurements female speaker 1", fill="GENDER")
+
+ggplot2::ggplot(voyellesLocutrice2, ggplot2::aes(F0)) +
+  ggplot2::geom_density(ggplot2::aes(fill=as.factor(SPEAKER)), alpha=0.8) +
+  ggplot2::scale_colour_brewer(palette = "Spectral") +
+  ggplot2::labs(title="Pitch measurements female speaker 2", fill="GENDER")
+```
+
+##### 3. F3 comparaison
+
+```{r f3CompW}
+ggplot2::ggplot(voyellesLocutrice1, ggplot2::aes(VOWEL, F3)) +
+  ggplot2::geom_count(col="tomato3", show.legend=F) +
+  ggplot2::labs(y="F3", title="Female speaker 1 F3 values")
+
+ggplot2::ggplot(voyellesLocutrice2, ggplot2::aes(VOWEL, F3)) +
+  ggplot2::geom_count(col="tomato3", show.legend=F) +
+  ggplot2::labs(y="F3", title="Female speaker 2 F3 values")
+```
+
+##### 1. Vocalic triangle
+
+```{r vocalicTriangleCompM}
+ggplot2::ggplot(voyellesLocuteur1, ggplot2::aes(x=F2, y=F1)) +
   ggplot2::geom_point(ggplot2::aes(col=VOWEL), size=3) +
   ggplot2::scale_colour_brewer(palette = "Spectral") +
   ggplot2::scale_x_reverse() + ggplot2::scale_y_reverse() +
-  ggplot2::labs(y="F1", x="F2", title="1 male speaker vocalic triangle")
+  ggplot2::labs(y="F1", x="F2", title="Male speaker 1 vocalic triangle")
 
-ggplot2::ggplot(voyelles1Locuteur1, ggplot2::aes(F0)) +
-  ggplot2::geom_density(ggplot2::aes(fill=as.factor(SPEAKER)), alpha=0.8) +
-  ggplot2::scale_colour_brewer(palette = "Spectral") +
-  ggplot2::labs(title="Pitch measurements single male speaker", fill="GENDER")
-
-ggplot2::ggplot(voyelles1Locuteur1, ggplot2::aes(VOWEL, F3)) +
-  ggplot2::geom_count(col="tomato3", show.legend=F) +
-  ggplot2::labs(y="F3", title="Single male speaker F3 values")
-```
-
-```{r subsetOnly1SpeakerM2}
-voyelles1Locuteur2 <- voyelles[1719:1885,]
-ggplot2::ggplot(voyelles1Locuteur2, ggplot2::aes(x=F2, y=F1)) +
+ggplot2::ggplot(voyellesLocuteur2, ggplot2::aes(x=F2, y=F1)) +
   ggplot2::geom_point(ggplot2::aes(col=VOWEL), size=3) +
   ggplot2::scale_colour_brewer(palette = "Spectral") +
   ggplot2::scale_x_reverse() + ggplot2::scale_y_reverse() +
-  ggplot2::labs(y="F1", x="F2", title="1 male speaker vocalic triangle")
-
-ggplot2::ggplot(voyelles1Locuteur2, ggplot2::aes(F0)) +
-  ggplot2::geom_density(ggplot2::aes(fill=as.factor(SPEAKER)), alpha=0.8) +
-  ggplot2::scale_colour_brewer(palette = "Spectral") +
-  ggplot2::labs(title="Pitch measurements single male speaker", fill="GENDER")
-
-ggplot2::ggplot(voyelles1Locuteur2, ggplot2::aes(VOWEL, F3)) +
-  ggplot2::geom_count(col="tomato3", show.legend=F) +
-  ggplot2::labs(y="F3", title="Single male speaker F3 values")
+  ggplot2::labs(y="F1", x="F2", title="Male speaker 2 vocalic triangle")
 ```
 
+##### 2. Pitch measurement
+
+```{r pitchCompM}
+ggplot2::ggplot(voyellesLocuteur1, ggplot2::aes(F0)) +
+  ggplot2::geom_density(ggplot2::aes(fill=as.factor(SPEAKER)), alpha=0.8) +
+  ggplot2::scale_colour_brewer(palette = "Spectral") +
+  ggplot2::labs(title="Pitch measurements Male speaker 1", fill="GENDER")
+
+ggplot2::ggplot(voyellesLocuteur2, ggplot2::aes(F0)) +
+  ggplot2::geom_density(ggplot2::aes(fill=as.factor(SPEAKER)), alpha=0.8) +
+  ggplot2::scale_colour_brewer(palette = "Spectral") +
+  ggplot2::labs(title="Pitch measurements Male speaker 2", fill="GENDER")
+```
+
+##### 3. F3 comparaison
+
+```{r f3CompM}
+ggplot2::ggplot(voyellesLocuteur1, ggplot2::aes(VOWEL, F3)) +
+  ggplot2::geom_count(col="tomato3", show.legend=F) +
+  ggplot2::labs(y="F3", title="Male speaker 1 F3 values")
+
+ggplot2::ggplot(voyellesLocuteur2, ggplot2::aes(VOWEL, F3)) +
+  ggplot2::geom_count(col="tomato3", show.legend=F) +
+  ggplot2::labs(y="F3", title="Male speaker 2 F3 values")
+```
