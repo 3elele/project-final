@@ -10,8 +10,8 @@ output: html_document
 
 ### 1st step
 
-Values of vowel formants can be a great indicator in order to distinguish between different vocalic sounds, but when it comes to voice recognition can formants help us to *recognize* different speakers and if they do, which are the more relevant ? We will analyse the first three formants, their distributions and their variations in order to try to answer this preliminary question. *F1* and *f2* values mainly corresponding to the average values of *ideal vowels*, in Automatic Speaker Recognition systems the *f3* has in particular a significant role to identify, for exemple in comparaison pairs, if it is the same person who's speaking or two different ones.  
-The other great value we will take in account is the pitch, noted *f0*. In human language the pitch can play a heavy role in recogniziting the speaker native language, the mood of a person and in some cases it could be the element which to characterise a certain speaker.
+Values of vowel formants can be a great indicator in order to distinguish between different vocalic sounds, but when it comes to voice recognition can formants help us to *recognize* different speakers and if they do, which are the more relevant ? We will analyse the first three formants, their distributions and their variations in order to try to answer this preliminary question. *F~1~* and *f~2~* values mainly corresponding to the average values of *ideal vowels*, in Automatic Speaker Recognition systems the *f~3~* has in particular a significant role to identify, for exemple in comparaison pairs, if it is the same person who's speaking or two different ones.  
+The other great value we will take in account is the pitch, noted *f~0~*. In human language the pitch can play a heavy role in recogniziting the speaker native language, the mood of a person and in some cases it could be the element which to characterise a certain speaker.
 So where do we start ? By loading the data and making some assumption on how we can manipulate them.
 
 ```{r loadDataset}
@@ -20,7 +20,7 @@ voyelles = read.csv("data.csv", header = TRUE, sep = "\t")
 
 ### Dataset
 
-Our dataset is made of 27 records by 9 different speakers, 5 women and 4 men, french native speakers. Every participant read 55 words, reapeting the set 3 times. All the values have been extracted automatically with Praat and saved in the table from the previous chunk, we have 6 columns in total : speaker gender, vowel, pitch value, first formants, second formant and third formant.
+Our dataset is made of 27 records by 9 different speakers, 5 women and 4 men, french native speakers. Every participant read 55 words, reapeting the set 3 times. All the values have been extracted automatically with [Praat](http://www.fon.hum.uva.nl/praat/) and saved in the table from the previous chunk, we have 6 columns in total : speaker gender, vowel, pitch value, first formants, second formant and third formant.
 
 ```{r vocalicTrianglePlot}
 ggplot2::ggplot(voyelles, ggplot2::aes(F2, F1)) +
@@ -37,11 +37,11 @@ In many cases /u/ and /i/ are closer to the values of /y/ but the original annot
 
 ##### 1. F3 values
 
-As we said in the introduction, the first element which can lead us to recognize if it is a speaker or multiple one to be analysed in a dataset would be the third formant values of that speaker. Here it is a global *f3* representation.   
+As we said in the introduction, the first element which can lead us to recognize if it is a speaker or multiple one to be analysed in a dataset would be the third formant values of that speaker. Here it is a global *f~3~* representation.   
 At first look we can't tell if a great variation is present in our data, there are in every vowels some areas with a greater concentration of values but we don't have an explicit explaination to what this could be. We can start making two hypothesis :
 
-- all the areas of concentration are common to avery speaker so that for a single speaker we will have a plot pretty much similar to this one. In this case we would assume that the *f3* can't be a reliable indicator of variation ;
-- the plot we see here is just the addition of all the *f3* belonging to the different speakers. This is the hypothesis we'll try to demonstrate in order to confirm the statements made in the introduction.
+- all the areas of concentration are common to avery speaker so that for a single speaker we will have a plot pretty much similar to this one. In this case we would assume that the *f~3~* can't be a reliable indicator of variation ;
+- the plot we see here is just the addition of all the *f~3~* belonging to the different speakers. This is the hypothesis we'll try to demonstrate in order to confirm the statements made in the introduction.
 
 ```{r f3Plot}
 ggplot2::ggplot(voyelles, ggplot2::aes(VOWEL, F3)) +
@@ -82,10 +82,13 @@ ggplot2::ggplot(voyelles, ggplot2::aes(F0)) +
 
 ##### 3. Cavity lengths  
 
-Another factor we could use to predict the speaker variation can be the cavity length ? Maybe this measure can be and addiction to other more precise ones :  
-* because of physiological factors, the human cavity is almost the same for every being, this measure isn't really specific for a person ;  
-* it isn't always precide, it can vary because we just computed it from formants measurements, using the reverse formant calcutation formula $Fn = (2n-1)c/4l$ where Fn is the sum of all formants or a specific formant l is the length and c the constant of sound speed (35000 m/s) so the length formula will be  $l = (c/Fn)/4$
-+ We applied the density measurement taking the vowels as a variation factor. this time our curves differs from one another but we can't really see some important information from them. Considering the global realisation of a vowel knowing that the pitch is strongly influenced by gender lead us to a not really satisfying representation of values.
+Another factor we could use to predict the speaker variation can be the cavity length ? Maybe this measure can be and addiction to other more precise ones :
+
+  * because of physiological factors, the human cavity is almost the same for every being, this measure isn't really specific for a person ;
+  * it isn't always precide, it can vary because we just computed it from formants measurements, using the reverse formant calcutation formula
+  $$Fn = (2n-1)c/4l$$
+  where Fn is the sum of all formants or a specific formant l is the length and c the constant of sound speed (35000 m/s) so the length formula will be
+  $$l = (c/Fn)/4$$
 
 ```{r cavityLength, echo=FALSE}
 cavityF1 <- c()
@@ -117,10 +120,12 @@ ggplot2::ggplot(data.frame(cavities), ggplot2::aes(seq_along(cavities),cavities)
   ggplot2::labs(y="length", x="count", title="Average cavity length")
 ```
 
+If this factor was decisive to distinguish the speakers one another we would have seen a change in the measure every about ~165, that's not the case as we can assume from the plot above.  
+
 ***
 #### Single Speaker considerations
 
-In order to realize our main idea to recognize between two or more different speakers we will now compare one pair of speakers for every gender, using the *f3* and *f0* measures.
+In order to realize our main idea to recognize between two or more different speakers we will now compare one pair of speakers for every gender, using the *f~3~* and *f~0~* measures.
 
 ```{r subset}
 voyellesLocutrice1 <- voyelles[1:168,]
@@ -131,18 +136,20 @@ voyellesLocuteur2 <- voyelles[1719:1885,]
 
 ##### 1. Vocalic triangle
 
+First looking at the vocalic triangle of both speakers we can see a slight difference in th vowel production. This first indicator can made a base to create a model for a speaker to be compared with all other speakers triangle
+
 ```{r vocalicTriangleCompW}
 ggplot2::ggplot(voyellesLocutrice1, ggplot2::aes(x=F2, y=F1)) +
   ggplot2::geom_point(ggplot2::aes(col=VOWEL), size=3) +
   ggplot2::scale_colour_brewer(palette = "Spectral") +
   ggplot2::scale_x_reverse() + ggplot2::scale_y_reverse() +
-  ggplot2::labs(y="F1", x="F2", title="Female speaker 1 vocalic triangle")
+  ggplot2::labs(y="F1", x="F2", title="Female speaker 1, vocalic triangle")
 
 ggplot2::ggplot(voyellesLocutrice2, ggplot2::aes(x=F2, y=F1)) +
   ggplot2::geom_point(ggplot2::aes(col=VOWEL), size=3) +
   ggplot2::scale_colour_brewer(palette = "Spectral") +
   ggplot2::scale_x_reverse() + ggplot2::scale_y_reverse() +
-  ggplot2::labs(y="F1", x="F2", title="Female speaker 2 vocalic triangle")
+  ggplot2::labs(y="F1", x="F2", title="Female speaker 2, vocalic triangle")
 ```
 
 ##### 2. Pitch measurement
@@ -151,12 +158,12 @@ ggplot2::ggplot(voyellesLocutrice2, ggplot2::aes(x=F2, y=F1)) +
 ggplot2::ggplot(voyellesLocutrice1, ggplot2::aes(F0)) +
   ggplot2::geom_density(ggplot2::aes(fill=as.factor(SPEAKER)), alpha=0.8) +
   ggplot2::scale_colour_brewer(palette = "Spectral") +
-  ggplot2::labs(title="Pitch measurements female speaker 1", fill="GENDER")
+  ggplot2::labs(title="Pitch measurements, female speaker 1", fill="GENDER")
 
 ggplot2::ggplot(voyellesLocutrice2, ggplot2::aes(F0)) +
   ggplot2::geom_density(ggplot2::aes(fill=as.factor(SPEAKER)), alpha=0.8) +
   ggplot2::scale_colour_brewer(palette = "Spectral") +
-  ggplot2::labs(title="Pitch measurements female speaker 2", fill="GENDER")
+  ggplot2::labs(title="Pitch measurements, female speaker 2", fill="GENDER")
 ```
 
 ##### 3. F3 comparaison
