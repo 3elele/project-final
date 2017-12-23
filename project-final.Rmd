@@ -35,23 +35,9 @@ In many cases /u/ and /i/ are closer to the values of /y/ but the original annot
 
 ### How to answer to the question
 
-##### 1. F3 values
+##### 1. F0 values
 
-As we said in the introduction, the first element which can lead us to recognize if it is a speaker or multiple one to be analysed in a dataset would be the third formant values of that speaker. Here it is a global *f~3~* representation.   
-At first look we can't tell if a great variation is present in our data, there are in every vowels some areas with a greater concentration of values but we don't have an explicit explaination to what this could be. We can start making two hypothesis :
-
-- all the areas of concentration are common to avery speaker so that for a single speaker we will have a plot pretty much similar to this one. In this case we would assume that the *f~3~* can't be a reliable indicator of variation ;
-- the plot we see here is just the addition of all the *f~3~* belonging to the different speakers. This is the hypothesis we'll try to demonstrate in order to confirm the statements made in the introduction.
-
-```{r f3Plot}
-ggplot2::ggplot(voyelles, ggplot2::aes(VOWEL, F3)) +
-  ggplot2::geom_count(col="tomato3", show.legend=F) +
-  ggplot2::labs(y="F3", title="Dataset F3 values") 
-```
-
-##### 2. F0 values
-
-The second indicator we will consider in order to identify different speakers will be the pitch or f0 measure. We'll present different representations, all based on density. We won't look at the values of this measure, they will not tell us something in particular, but just looking at the shapes of density curves we will understand the great variation of our dataset.
+As we said in the introduction, the first element which can lead us to recognize if it is one speaker or a multitude of spekears to be analysed in a dataset would be the pitch or *f~0~* measure. We'll present different representations, all based on density. We won't look at the values of this measure, they will not tell us something in particular, but just looking at the shapes of density curves we will understand the great variation of our dataset.
 
 ```{r pithPlotGenders}
 ggplot2::ggplot(voyelles, ggplot2::aes(F0)) +
@@ -79,6 +65,20 @@ ggplot2::ggplot(voyelles, ggplot2::aes(F0)) +
 ```
 
 + In order to clarify the variation between vowel we add gender as a factor of variation in this new density representation. As we see, this time our curves directly derive from our first pitch curve, but as that one it can help us to describe the variation between genders not specifically between speakers.  
+
+##### 2. F3 values
+
+The second indicator we will consider in order to identify different speakers will be the third formant values of that speaker. Here it is a global *f~3~* representation.   
+At first look we can't tell if a great variation is present in our data, there are in every vowels some areas with a greater concentration of values but we don't have an explicit explaination to what this could be. We can start making two hypothesis :
+
+- all the areas of concentration are common to avery speaker so that for a single speaker we will have a plot pretty much similar to this one. In this case we would assume that the *f~3~* can't be a reliable indicator of variation ;
+- the plot we see here is just the addition of all the *f~3~* belonging to the different speakers. This is the hypothesis we'll try to demonstrate in order to confirm the statements made in the introduction.
+
+```{r f3Plot}
+ggplot2::ggplot(voyelles, ggplot2::aes(VOWEL, F3)) +
+  ggplot2::geom_count(col="tomato3", show.legend=F) +
+  ggplot2::labs(y="F3", title="Dataset F3 values") 
+```
 
 ##### 3. Cavity lengths  
 
@@ -136,7 +136,8 @@ voyellesLocuteur2 <- voyelles[1719:1885,]
 
 ##### 1. Vocalic triangle
 
-First looking at the vocalic triangle of both speakers we can see a slight difference in th vowel production. This first indicator can made a base to create a model for a speaker to be compared with all other speakers triangle
+First looking at the vocalic triangle of both speakers we can see a slight difference in th vowel production. This first indicator can made a base to create a model for a speaker to be compared with all other speakers triangle.  
+In this first comparaison pair we can see a part of the elements which can explain the difference between two speakers. The two triangles aren't exactly the same, they have some different distribution for all the three vowels, in the first one we find the *@* annotation, not seen in the second one, this can be another element of reflection : the variety of sound production is a great factor of variation, we know that a speaker has a certain repertoire differently from another person who can have a smaller or bigger one.  
 
 ```{r vocalicTriangleCompW}
 ggplot2::ggplot(voyellesLocutrice1, ggplot2::aes(x=F2, y=F1)) +
@@ -154,68 +155,112 @@ ggplot2::ggplot(voyellesLocutrice2, ggplot2::aes(x=F2, y=F1)) +
 
 ##### 2. Pitch measurement
 
-```{r pitchCompW}
-ggplot2::ggplot(voyellesLocutrice1, ggplot2::aes(F0)) +
-  ggplot2::geom_density(ggplot2::aes(fill=as.factor(SPEAKER)), alpha=0.8) +
-  ggplot2::scale_colour_brewer(palette = "Spectral") +
-  ggplot2::labs(title="Pitch measurements, female speaker 1", fill="GENDER")
+The first element which better explains the variation and help in the recognition is the pitch curve. We have seen the global pitch value at the beginning, we'll compare here, as for the vocalic triangle, the pitch curves of the same two female speakers.  
+As we see, the two plots have an evident different, the first concentres its values on 250 Hz while in the second one we have almost all the curve before 200 Hz. This tells us that *f~0~* measure is a more specific feature for speakers and it can really represent a fundamental distinction factor.  
 
-ggplot2::ggplot(voyellesLocutrice2, ggplot2::aes(F0)) +
+```{r pitchCompW}
+pitchLocW1 <- ggplot2::ggplot(voyellesLocutrice1, ggplot2::aes(F0)) +
   ggplot2::geom_density(ggplot2::aes(fill=as.factor(SPEAKER)), alpha=0.8) +
   ggplot2::scale_colour_brewer(palette = "Spectral") +
-  ggplot2::labs(title="Pitch measurements, female speaker 2", fill="GENDER")
+  ggplot2::labs(title="Female speaker 1, pitch curve", fill="GENDER") + 
+  ggplot2::xlim(100, 300)
+
+pitchLocW2 <- ggplot2::ggplot(voyellesLocutrice2, ggplot2::aes(F0)) +
+  ggplot2::geom_density(ggplot2::aes(fill=as.factor(SPEAKER)), alpha=0.8) +
+  ggplot2::scale_colour_brewer(palette = "Spectral") +
+  ggplot2::labs(title="Female speaker 2, pitch curve", fill="GENDER") + 
+  ggplot2::xlim(100, 300)
+
+gridExtra::grid.arrange(pitchLocW1, pitchLocW2, ncol=2)
 ```
 
 ##### 3. F3 comparaison
 
-```{r f3CompW}
-ggplot2::ggplot(voyellesLocutrice1, ggplot2::aes(VOWEL, F3)) +
-  ggplot2::geom_count(col="tomato3", show.legend=F) +
-  ggplot2::labs(y="F3", title="Female speaker 1 F3 values")
+We now present the second element we have identified as a possible factor in speaker recognition, the *f~3~* values specific to the speaker. We stated our main hypothesis on this measure, telling that it could represent a fundamental value to be considered. We hoped to have two different representations in order to confirm our statement.  
+As we predict, the *f~3~* values from two speakers strongly differ one another.  
 
-ggplot2::ggplot(voyellesLocutrice2, ggplot2::aes(VOWEL, F3)) +
+* /a/ have a lower concentration for *speaker 2* ;  
+* /i/ is produced mostly around 3500 Hz and higher frequency for *speaker 2* while *speaker 1* have this vowel formant higher frequency around 3500 Hz and more realisations in lower values ;  
+* /u/ differ the most with a greater concentration of values for *speaker 2*, while in *speaker 1* we just see a distribution on a large scale.  
+
+```{r f3CompW}
+f3LocW1 <- ggplot2::ggplot(voyellesLocutrice1, ggplot2::aes(VOWEL, F3)) +
   ggplot2::geom_count(col="tomato3", show.legend=F) +
-  ggplot2::labs(y="F3", title="Female speaker 2 F3 values")
+  ggplot2::labs(y="F3", title="Female speaker 1, F3 values") + 
+  ggplot2::ylim(2250, 3750)
+
+f3LocW2 <- ggplot2::ggplot(voyellesLocutrice2, ggplot2::aes(VOWEL, F3)) +
+  ggplot2::geom_count(col="tomato3", show.legend=F) +
+  ggplot2::labs(y="F3", title="Female speaker 2, F3 values") + 
+  ggplot2::ylim(2250, 3750)
+
+gridExtra::grid.arrange(f3LocW1, f3LocW2, ncol=2)
 ```
 
-##### 1. Vocalic triangle
+##### 1. Vocalic triangle  
+
+We will take the same comparaison elements we have seen for female speakers in order to uderstand if the same assumptions can be made for men.  
+As we start from the vocalic triangles, we already note a more important difference both in scales :  
+
+* *f~1~* for the first speaker goes from almost 130 Hz to 1000, while in the second one it goes from 200 to about 800 ;  
+* *f~2~* has a scale from about 550 to 2500 for *speaker 1* and from ~850 to ~2350 in the second case.  
+
+We have here too a repertoire difference with one speaker producing a large quantity of *@*. We can assume the vocalic triangles we have presented have a greater characterisation for men than for women due to the important variations of frequency.  
 
 ```{r vocalicTriangleCompM}
 ggplot2::ggplot(voyellesLocuteur1, ggplot2::aes(x=F2, y=F1)) +
   ggplot2::geom_point(ggplot2::aes(col=VOWEL), size=3) +
   ggplot2::scale_colour_brewer(palette = "Spectral") +
   ggplot2::scale_x_reverse() + ggplot2::scale_y_reverse() +
-  ggplot2::labs(y="F1", x="F2", title="Male speaker 1 vocalic triangle")
+  ggplot2::labs(y="F1", x="F2", title="Male speaker 1, vocalic triangle")
 
 ggplot2::ggplot(voyellesLocuteur2, ggplot2::aes(x=F2, y=F1)) +
   ggplot2::geom_point(ggplot2::aes(col=VOWEL), size=3) +
   ggplot2::scale_colour_brewer(palette = "Spectral") +
   ggplot2::scale_x_reverse() + ggplot2::scale_y_reverse() +
-  ggplot2::labs(y="F1", x="F2", title="Male speaker 2 vocalic triangle")
+  ggplot2::labs(y="F1", x="F2", title="Male speaker 2, vocalic triangle")
 ```
 
-##### 2. Pitch measurement
+##### 2. Pitch measurement  
+
+In what concerns pitch, we see for men too a great difference, but sligthly less important than the women's one. The two pitch curves have both their values around 100 and 200, but conentrated in different areas. The difference is visible, but it will need a great precision in order to be really useful.    
 
 ```{r pitchCompM}
-ggplot2::ggplot(voyellesLocuteur1, ggplot2::aes(F0)) +
+pitchLocM1 <- ggplot2::ggplot(voyellesLocuteur1, ggplot2::aes(F0)) +
   ggplot2::geom_density(ggplot2::aes(fill=as.factor(SPEAKER)), alpha=0.8) +
   ggplot2::scale_colour_brewer(palette = "Spectral") +
-  ggplot2::labs(title="Pitch measurements Male speaker 1", fill="GENDER")
+  ggplot2::labs(title="Male speaker 1, pitch curve", fill="GENDER") + 
+  ggplot2::xlim(0, 300)
 
-ggplot2::ggplot(voyellesLocuteur2, ggplot2::aes(F0)) +
+pitchLocM2 <- ggplot2::ggplot(voyellesLocuteur2, ggplot2::aes(F0)) +
   ggplot2::geom_density(ggplot2::aes(fill=as.factor(SPEAKER)), alpha=0.8) +
   ggplot2::scale_colour_brewer(palette = "Spectral") +
-  ggplot2::labs(title="Pitch measurements Male speaker 2", fill="GENDER")
+  ggplot2::labs(title="Male speaker 2, pitch curve", fill="GENDER") + 
+  ggplot2::xlim(0, 300)
+
+gridExtra::grid.arrange(pitchLocM1, pitchLocM2, ncol=2)
 ```
 
-##### 3. F3 comparaison
+##### 3. F3 comparaison  
+
+Looking at the *f~3~* realisations we really can assume this is a characteristic feature for speakers. we see for /a/, /i/ and /u/ three fundamentally different distributions for the two men we considered here, values are arranged around the same frequencies but in different areas for the first two segments, while for the /u/ they strongly differ.  
 
 ```{r f3CompM}
-ggplot2::ggplot(voyellesLocuteur1, ggplot2::aes(VOWEL, F3)) +
+f3LocM1 <- ggplot2::ggplot(voyellesLocuteur1, ggplot2::aes(VOWEL, F3)) +
   ggplot2::geom_count(col="tomato3", show.legend=F) +
-  ggplot2::labs(y="F3", title="Male speaker 1 F3 values")
+  ggplot2::labs(y="F3", title="Male speaker 1, F3 values") + 
+  ggplot2::ylim(2000, 3750)
 
-ggplot2::ggplot(voyellesLocuteur2, ggplot2::aes(VOWEL, F3)) +
+f3LocM2 <- ggplot2::ggplot(voyellesLocuteur2, ggplot2::aes(VOWEL, F3)) +
   ggplot2::geom_count(col="tomato3", show.legend=F) +
-  ggplot2::labs(y="F3", title="Male speaker 2 F3 values")
+  ggplot2::labs(y="F3", title="Male speaker 2, F3 values") + 
+  ggplot2::ylim(2000, 3750)
+
+gridExtra::grid.arrange(f3LocM1, f3LocM2, ncol=2)
 ```
+
+***
+#### Conclusion  
+
+In order to understand how the Speaker Recognition works we have taken 3 variation factors : pitch, *f~3~* and the cavity length. For the last one we assumed it doesn't really represent a characteristic value, basically because of its inaccuracy, so we did not used it to study speakers one to one.  
+In a global representation we don't really managed to understand where the variation came from, if what we saw was just a greater representation of a common model or the sum of all speaker specific models. The analysis one-to-one has helped to clarify this last point, our hypothesis on *f~0~* and *f~3~* have been confirmed as they represent great characterisation factors for speakers, they remain two important features in a large set which ASR studies continue to develop and extend.
